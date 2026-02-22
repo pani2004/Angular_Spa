@@ -1,0 +1,512 @@
+{
+	"info": {
+		"_postman_id": "spa-api-collection",
+		"name": "SPA Authentication API",
+		"description": "Complete API collection for SPA application with JWT authentication, role-based access control, and DynamoDB backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/health",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "health"]
+				},
+				"description": "Check if the API server is running"
+			},
+			"response": []
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    pm.test(\"User registered successfully\", function () {",
+									"        pm.response.to.have.status(201);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Register a new user. Role can be ADMIN or USER (default: USER)"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Login successful\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    // Cookies are automatically stored by Postman",
+									"    pm.test(\"Access token cookie set\", function () {",
+									"        pm.expect(pm.cookies.has('accessToken')).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login as admin user. Credentials:\n- Email: admin@test.com\n- Password: Password123!\n- Role: ADMIN"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Regular User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Login successful\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@test.com\",\n    \"password\": \"Password123!\",\n    \"role\": \"USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login as regular user. Credentials:\n- Email: user@test.com\n- Password: Password123!\n- Role: USER"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"User retrieved successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.data.user).to.have.property('email');",
+									"        pm.expect(jsonData.data.user).to.have.property('role');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						},
+						"description": "Get current authenticated user details. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Token refreshed successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "refresh"]
+						},
+						"description": "Refresh access token using refresh token cookie"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Logout successful\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "logout"]
+						},
+						"description": "Logout and revoke refresh token. Requires authentication."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication and user management endpoints"
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Profile retrieved successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.data.user).to.have.property('userId');",
+									"        pm.expect(jsonData.data.user).to.have.property('email');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "profile"]
+						},
+						"description": "Get current user's profile. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Records (No Delay)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Records retrieved successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.data.records).to.be.an('array');",
+									"        pm.expect(jsonData.data.count).to.be.a('number');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/records",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "records"]
+						},
+						"description": "Get user records without delay. Admin users see 20 records, regular users see 5 records."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Records (500ms Delay)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Records retrieved with delay\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/records?delay=500",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "records"],
+							"query": [
+								{
+									"key": "delay",
+									"value": "500",
+									"description": "Artificial delay in milliseconds (0-5000)"
+								}
+							]
+						},
+						"description": "Get user records with 500ms artificial delay to demonstrate async processing"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Records (2s Delay)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/records?delay=2000",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "records"],
+							"query": [
+								{
+									"key": "delay",
+									"value": "2000",
+									"description": "2 second delay"
+								}
+							]
+						},
+						"description": "Get user records with 2 second delay for testing loading states"
+					},
+					"response": []
+				}
+			],
+			"description": "User-specific endpoints (require authentication)"
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Users retrieved successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.data.users).to.be.an('array');",
+									"        pm.expect(jsonData.data.count).to.be.a('number');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/admin/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "admin", "users"]
+						},
+						"description": "Get all users (Admin only). Requires ADMIN role."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"User updated successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Name\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/admin/users/:userId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "admin", "users", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "",
+									"description": "User ID to update (get from Get All Users response)"
+								}
+							]
+						},
+						"description": "Update user details (Admin only). Replace :userId with actual user ID. Cannot update password through this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"User deleted successfully\", function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/admin/users/:userId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "admin", "users", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "",
+									"description": "User ID to delete"
+								}
+							]
+						},
+						"description": "Delete a user (Admin only). Replace :userId with actual user ID. Admin cannot delete themselves."
+					},
+					"response": []
+				}
+			],
+			"description": "Admin-only endpoints (require ADMIN role)"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}
