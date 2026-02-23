@@ -1,0 +1,131 @@
+<mat-toolbar color="primary">
+  <span>User Dashboard</span>
+  <span class="spacer"></span>
+  @if (currentUser) {
+    <span class="user-info">{{ currentUser.firstName }} {{ currentUser.lastName }} ({{ currentUser.role }})</span>
+  }
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Logout
+  </button>
+</mat-toolbar>
+
+<div class="dashboard-container">
+  @if (currentUser) {
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>Welcome, {{ currentUser.firstName }}!</mat-card-title>
+        <mat-card-subtitle>Email: {{ currentUser.email }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Role: <strong>{{ currentUser.role }}</strong></p>
+        <p>Status: <strong>{{ currentUser.isActive ? 'Active' : 'Inactive' }}</strong></p>
+        <p>Account created: {{ currentUser.createdAt | date:'medium' }}</p>
+        
+        @if (isAdmin) {
+          <div class="admin-actions">
+            <a mat-raised-button color="accent" routerLink="/admin">
+              <mat-icon>admin_panel_settings</mat-icon>
+              Go to Admin Panel
+            </a>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="records-card">
+      <mat-card-header>
+        <mat-card-title>User Records</mat-card-title>
+        <mat-card-subtitle>
+          Demonstrating async processing with artificial delays
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="delay-selector">
+          <mat-form-field appearance="outline">
+            <mat-label>Select Processing Delay</mat-label>
+            <mat-select [(value)]="selectedDelay" (selectionChange)="onDelayChange()">
+              <mat-option [value]="0">No Delay (0s)</mat-option>
+              <mat-option [value]="2">2 seconds</mat-option>
+              <mat-option [value]="5">5 seconds</mat-option>
+              <mat-option [value]="10">10 seconds</mat-option>
+            </mat-select>
+            <mat-hint>Choose a delay to simulate async processing</mat-hint>
+          </mat-form-field>
+          
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="loadRecords()" 
+            [disabled]="loading">
+            <mat-icon>refresh</mat-icon>
+            Fetch Records
+          </button>
+        </div>
+
+        @if (loading) {
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p>Loading records with {{ selectedDelay }}s delay...</p>
+          </div>
+        }
+
+        @if (!loading && records.length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="records" class="records-table">
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let record">{{ record.id }}</td>
+              </ng-container>
+
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let record">{{ record.name }}</td>
+              </ng-container>
+
+              <!-- Description Column -->
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Description</th>
+                <td mat-cell *matCellDef="let record">{{ record.description }}</td>
+              </ng-container>
+
+              <!-- Created At Column -->
+              <ng-container matColumnDef="createdAt">
+                <th mat-header-cell *matHeaderCellDef>Created At</th>
+                <td mat-cell *matCellDef="let record">{{ record.createdAt | date:'short' }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+
+          <mat-card-actions>
+            <p class="records-info">
+              Total records: <strong>{{ records.length }}</strong> | 
+              Processing delay: <strong>{{ selectedDelay }}s</strong>
+            </p>
+          </mat-card-actions>
+        }
+
+        @if (!loading && records.length === 0 && !error) {
+          <div class="empty-state">
+            <mat-icon>inbox</mat-icon>
+            <p>No records found. Click "Fetch Records" to load data.</p>
+          </div>
+        }
+
+        @if (error) {
+          <mat-card class="error-card">
+            <mat-card-content>
+              <mat-icon color="warn">error</mat-icon>
+              <p>{{ error }}</p>
+            </mat-card-content>
+          </mat-card>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
