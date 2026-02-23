@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>Edit User</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="editForm">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput [value]="data.user.email" disabled>
+        <mat-hint>Email cannot be changed</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName" required>
+        @if (editForm.get('firstName')?.hasError('required') && editForm.get('firstName')?.touched) {
+          <mat-error>First name is required</mat-error>
+        }
+        @if (editForm.get('firstName')?.hasError('minlength') && editForm.get('firstName')?.touched) {
+          <mat-error>First name must be at least 2 characters</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName" required>
+        @if (editForm.get('lastName')?.hasError('required') && editForm.get('lastName')?.touched) {
+          <mat-error>Last name is required</mat-error>
+        }
+        @if (editForm.get('lastName')?.hasError('minlength') && editForm.get('lastName')?.touched) {
+          <mat-error>Last name must be at least 2 characters</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Role</mat-label>
+        <input matInput [value]="data.user.role" disabled>
+        <mat-hint>Role cannot be changed</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row checkbox-row">
+      <mat-checkbox formControlName="isActive">
+        Active User
+      </mat-checkbox>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="onSubmit()" 
+    [disabled]="!editForm.valid">
+    Save Changes
+  </button>
+</mat-dialog-actions>
