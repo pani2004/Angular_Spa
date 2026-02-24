@@ -192,12 +192,4 @@ The dashboard allows you to select artificial delays (0ms - 5s) to demonstrate:
 - `ng build` - Production build
 - `ng test` - Run tests
 
-## Project Timeline
-Completed: February 22, 2026
-Due Date: February 24, 2026
 
-## Notes
-- DynamoDB Local runs in-memory mode (no persistence on restart)
-- For production, configure AWS DynamoDB connection in `.env`
-- JWT secrets should be changed in production
-- CORS is configured for localhost development
